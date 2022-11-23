@@ -42,7 +42,7 @@ AWS Verified Access delivers secure access to private applications without a VPN
 
 ### Integration overview
 
-AWS Verified Access provides secure access to private applications (non-internet routable) hosted in an Amazon Virtual Private Cloud (Amazon VPC) by acting as a reverse proxy. It does this by providing idendity and device posture checks before routing the traffic to the application. Using CrowdStrike Zero Trust Assessment (CrowdStrike ZTA), we provide customers the ability to assess their endpoint security posture, allowing AWS Verified Access to provide conditional access to resources that comply to your organization's device posture policies.
+AWS Verified Access provides secure access to private applications (non-internet routable) hosted in an Amazon Virtual Private Cloud (Amazon VPC) by acting as a reverse proxy. It does this by providing identity and device posture checks before routing the traffic to the application. Using CrowdStrike Zero Trust Assessment (CrowdStrike ZTA), we provide customers the ability to assess their endpoint security posture, allowing AWS Verified Access to provide conditional access to resources that comply to your organization's device posture policies.
 
 AWS Verified Access relies on these primary components for it to work properly:
 
@@ -79,7 +79,7 @@ The following guide provides step-by-step instructions that showcase a sample ap
 We'll be deploying an internal Application Load Balancer (ALB) through CloudFormation. The only functionality of this is ALB is to emulate a private application by mocking a response on a successful hit.
 
 1. Deploy the [CloudFormation template](infrastructure/cfn-alb.json) in your AWS account
-1. Once deployment is complete, refer to the CloudFormation Stack Ouput and collect the following information that will be used when creating the AWS Verified Access Endpoint in later section: `ALBArn`, `SecurityGroup`, `Subnet1`, `Subnet2`, and `Subnet3`.
+1. Once deployment is complete, refer to the CloudFormation Stack Output and collect the following information that will be used when creating the AWS Verified Access Endpoint in later section: `ALBArn`, `SecurityGroup`, `Subnet1`, `Subnet2`, and `Subnet3`.
 
 ### 2. Setting up your OIDC-compliant identity provider
 
@@ -110,7 +110,7 @@ We'll be using a free trial version of Okta. If you prefer to follow along with 
 
 ### 4. Create AWS Verified Access Trust Providers
 
-In this step, uou'll create two trust providers, one for your IdP and another for CrowdStrike.
+In this step, you'll create two trust providers, one for your IdP and another for CrowdStrike.
 
 #### 4.1. Create your Okta trust provider
 
@@ -184,7 +184,7 @@ In this step, you'll be attaching the two Trust Providers you created in the pre
 
 ### 6. Create your AWS Verified Access Group
 
-In this step, you'll create your AWS Verified Access Group. Inside, you'll define a policy that will determine access based on the the IdP, device posture, and other paramaters provided by the AWS Verified Access service. For this guide, we'll create a policy document that checks that the client has the CrowdStrike agent installed, belongs to our CID, and has an overall ZTA score higher than 80.
+In this step, you'll create your AWS Verified Access Group. Inside, you'll define a policy that will determine access based on the the IdP, device posture, and other parameters provided by the AWS Verified Access service. For this guide, we'll create a policy document that checks that the client has the CrowdStrike agent installed, belongs to our CID, and has an overall ZTA score higher than 80.
 
 > Clients will need to successfully log into your Identity Provider before the policy document is evaluated. As such, any identity provider conditions you set in your policy document are evaluated on top of the successful login.
 
@@ -218,7 +218,7 @@ In this step, you'll use AWS Certificate Manager to create a certificate for the
 
 ### 8. Create your AWS Verified Access Endpoint
 
-In this step, you'll bring everything together and create the AWS Verfied Access Endpoint that will act as the reverse proxy for your private application. Please note that it will take 10-30 minutes for the endpoint to provision. If you make any changes to the endpoint, it will typically take 5-15 minutes for it to take into effect.
+In this step, you'll bring everything together and create the AWS Verified Access Endpoint that will act as the reverse proxy for your private application. Please note that it will take 10-30 minutes for the endpoint to provision. If you make any changes to the endpoint, it will typically take 5-15 minutes for it to take into effect.
 
 1. Replace the following values in the command below before running:
    1.`Verified Access Group`, `Certificate ARN`, `Private Application Domain Name`, `ALB ARN`, `Subnet1`, `Subnet2`, `Subnet3`, and `SecurityGroup`
@@ -258,7 +258,7 @@ In this step, you'll update your Okta's application settings. Specifically, we'l
 
 1. Navigate to your Okta Administrator page and select the application you created
 1. Press `Edit` under General Settings
-1. Replace the placeholders `ApplicationDomain` and `DeviceValidationDomain` with relevant values and dadd the following URLs under `Sign-in redirect URIs`:
+1. Replace the placeholders `ApplicationDomain` and `DeviceValidationDomain` with relevant values and add the following URLs under `Sign-in redirect URIs`:
    1. https://{{ ApplicationDomain }}/oauth2/idpresponse
    1. https://{{ DeviceValidationDomain }}/oauth2/idpresponse
 
@@ -286,11 +286,11 @@ In this step, you'll install the AWS Verified Access browser extension on your c
 
 In this step, you'll verify that your private application is properly protected by AWS Verified Access.
 
-1. Confirm that the AWS Verified Access Endpoint is successfuly provisioned by running `aws ava describe-verified-access-endpoints` and confirm that`Status.Code` is equal to `Active`
+1. Confirm that the AWS Verified Access Endpoint is successfully provisioned by running `aws ava  describe-verified-access-endpoints` and confirm that `Status.Code` is equal to `Active`
 1. Navigate to your private application domain, which is the value of `ApplicationDomain`
 1. Log into your identity provider
 1. If you're navigating on a client machine that meets the criteria to access the private application, you'll see `Mock response`
-1. If you're navigating on a client machinethat doesn't meet the criteria, you'll see `Redirecting...`, which is the automated response from AWS Verfied Access
+1. If you're navigating on a client machine that doesn't meet the criteria, you'll see `Redirecting...`, which is the automated response from AWS Verified Access
 
 ## Support
 
