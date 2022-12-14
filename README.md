@@ -6,7 +6,9 @@
 
 # Securing private applications with CrowdStrike and AWS Verified Access
 
-**Table of Contents**
+AWS Verified Access delivers secure access to private applications without a VPN by continuously evaluating each request in real-time based on contextual security signals like identity, device security status and location. The service then grants access based on the configured security policy for each application and connects the users, thereby improving security posture of the organization. CrowdStrike customers leverage Falcon sensor's deep inspection and CrowdStrike Threat Graph® analytics to provide highly accurate security posture scores for the service's access decisions.
+
+## Table of Contents
 
 - [Overview](#overview)
   - [What is AWS Verified Access](#what-is-aws-verified-access)
@@ -36,27 +38,13 @@
 
 ## Overview
 
-### What is AWS Verified Access
-
-AWS Verified Access delivers secure access to private applications without a VPN by continuously evaluating each request in real-time based on contextual security signals like identity, device security status and location. The service then grants access based on the configured security policy for each application and connects the users, thereby improving security posture of the organization. CrowdStrike customers leverage Falcon sensor's deep inspection and CrowdStrike Threat Graph® analytics to provide highly accurate security posture scores for the service's access decisions.
-
-### Integration overview
-
 AWS Verified Access provides secure access to private applications (non-internet routable) hosted in an Amazon Virtual Private Cloud (Amazon VPC) by acting as a reverse proxy. It does this by providing identity and device posture checks before routing the traffic to the application. Using CrowdStrike Zero Trust Assessment (CrowdStrike ZTA), we provide customers the ability to assess their endpoint security posture, allowing AWS Verified Access to provide conditional access to resources that comply to your organization's device posture policies.
 
 AWS Verified Access relies on these primary components for it to work properly:
 
 1. Setting up the AWS Verified Access components i.e., (AWS Verified Access instances, access groups, access policies, endpoints, and trust providers).
 1. Browser extensions that are installed on client endpoints for device posture evaluation.
-1. An installer that sets up a [Native Message](https://developer.chrome.com/docs/apps/nativeMessaging/) Host. The host is responsible for reading the CrowdStrike ZTA score and securely communicating the payload to the browser extension. [Please visit here to download the latest MSI](https://d3p8dc6667u8pq.cloudfront.net/WPF/latest/AWS_Verified_Access_Native_Messaging_Host.msi).
-
-### Prerequisites
-
-The following requirements must be met before you will be able to deploy or use this solution:
-
-1. You must be a customer of CrowdStrike Insights XDR
-1. Raise a ticket with CrowdStrike support to have the ZTA file deployed to your environment by enabling the following feature flag: `zta_distribute_payload`
-1. You must have an OIDC-compliant Identity Provider (IdP) configured to setup AWS Verified Access
+1. An installer that sets up a [Native Message](https://developer.chrome.com/docs/apps/nativeMessaging/) Host. The host is responsible for reading the CrowdStrike ZTA score and securely communicating the payload to the browser extension.
 
 ### AWS Verified Access components
 
@@ -70,7 +58,17 @@ The following requirements must be met before you will be able to deploy or use 
 
 - **Verified Access Trust Provider:** An OIDC-compliant identity provider i.e., (AWS IAM, Okta, CyberArk, etc.)
 
-## Quick-start guide
+![AWS CRWD Verified Access Diagram](./assets/CrowdStrike_AWS_Verified_Access_Diagram.png)
+
+## Getting Started
+### Prerequisites
+
+The following requirements must be met before you will be able to deploy or use this solution:
+
+1. Have a current CrowdStrike Insights XDR subscription
+1. Raise a ticket with [CrowdStrike support](https://supportportal.crowdstrike.com/) to have the ZTA file deployed to your environment by enabling the following feature flag: `zta_distribute_payload`
+1. You must have an OIDC-compliant Identity Provider (IdP) configured to setup AWS Verified Access
+### Quick-start guide
 
 The following guide provides step-by-step instructions that showcase a sample application that's protected by AWS Verified Access, Okta (for OIDC), and CrowdStrike Zero Trust Assessment (for Device Posture). The solution will be deployed in `us-west-2`. If you'd like to deploy this elsewhere, please update the region in all commands referenced below.
 
@@ -79,11 +77,11 @@ The following guide provides step-by-step instructions that showcase a sample ap
 We'll be deploying an internal Application Load Balancer (ALB) through CloudFormation. The only functionality of this is ALB is to emulate a private application by mocking a response on a successful hit.
 
 1. Deploy the [CloudFormation template](infrastructure/cfn-alb.json) in your AWS account
-1. Once deployment is complete, refer to the CloudFormation Stack Output and collect the following information that will be used when creating the AWS Verified Access Endpoint in later section: `ALBArn`, `SecurityGroup`, `Subnet1`, `Subnet2`, and `Subnet3`.
+1. Once deployment is complete, refer to the CloudFormation Stack Output and collect the following information that will be used when creating the AWS Verified Access Endpoint in a later section: `ALBArn`, `SecurityGroup`, `Subnet1`, `Subnet2`, and `Subnet3`.
 
 ### 2. Setting up your OIDC-compliant identity provider
 
-We'll be using a free trial version of Okta. If you prefer to follow along with another provider, the steps are nearly identical.
+In this guide, we'll be using a free trial version of Okta for our OIDC provider. If you prefer to follow along with another provider, the steps are nearly identical.
 
 1. [Sign up for a free trial to Okta](https://www.okta.com/free-trial/)
 1. Create a new application with an OIDC as the sign-in method
@@ -101,7 +99,7 @@ We'll be using a free trial version of Okta. If you prefer to follow along with 
 1. Create your AWS Verified Access Instance
 
    ```shell
-   aws ava create-verified-access-instance \
+   aws ec2 create-verified-access-instance \
    --region us-west-2 \
    --description "CrowdStrike + AWS Verified Access Demo"
    ```
@@ -110,23 +108,23 @@ We'll be using a free trial version of Okta. If you prefer to follow along with 
 
 ### 4. Create AWS Verified Access Trust Providers
 
-In this step, you'll create two trust providers, one for your IdP and another for CrowdStrike.
+In this step you'll create two trust providers, one for your IdP and another for CrowdStrike.
 
 #### 4.1. Create your Okta trust provider
 
 1. Replace the following values in the command below before running:
-   1. `Okta Tenant URL`, `Okta Client ID`, `Okta Client Secret`
+   1. `{{ Okta Tenant URL }}`, `{{ Okta Client ID }}`, `{{ Okta Client Secret }}`
 
    ```shell
-   aws ava create-verified-access-trust-provider \
+   aws ec2 create-verified-access-trust-provider \
    --trust-provider-type user \
    --policy-reference-name "okta" \
    --user-trust-provider-type oidc \
    --oidc-options \
-   "Issuer={{ Okta Tenant URL }}}, \
-   AuthorizationEndpoint={{ Okta Tenant URL }}}/oauth2/v1/authorize, \
-   TokenEndpoint={{ Okta Tenant URL }}}/oauth2/v1/token, \
-   UserInfoEndpoint={{ Okta Tenant URL }}}/oauth2/v1/userinfo, \
+   "Issuer={{ Okta Tenant URL }}, \
+   AuthorizationEndpoint={{ Okta Tenant URL }}/oauth2/v1/authorize, \
+   TokenEndpoint={{ Okta Tenant URL }}/oauth2/v1/token, \
+   UserInfoEndpoint={{ Okta Tenant URL }}/oauth2/v1/userinfo, \
    ClientId={{ Okta Client ID }}, \
    ClientSecret={{ Okta Client Secret}}, \
    Scope='openid groups profile email'" \
@@ -139,10 +137,10 @@ In this step, you'll create two trust providers, one for your IdP and another fo
 #### 4.2. Create the CrowdStrike trust provider
 
 1. Replace the following values in the command below before running:
-   1. `TenantId` with your CrowdStrike Customer ID (CID)
+   1. `{{ TenantId }}` with your CrowdStrike Customer ID (CID)
 
    ```shell
-   aws ava create-verified-access-trust-provider \
+   aws ec2 create-verified-access-trust-provider \
    --trust-provider-type device \
    --policy-reference-name "crowdstrike" \
    --device-trust-provider-type crowdstrike \
@@ -156,15 +154,15 @@ In this step, you'll create two trust providers, one for your IdP and another fo
 
 ### 5. Attach your trust providers
 
-In this step, you'll be attaching the two Trust Providers you created in the previous step to the AWS Verified Access Instance you created earlier.
+In this step, you'll be attaching the two Trust Providers you created in the previous step to the AWS Verified Access Instance created earlier.
 
 #### 5.1. Attach your Okta trust provider
 
 1. Replace the following values in the command below before running:
-   1. `Verified Instance ID` and `Okta Trust Provider ID`
+   1. `{{ Verified Instance ID` }} and `{{ Okta Trust Provider ID }}`
 
       ```shell
-      aws ava attach-verified-access-trust-provider \
+      aws ec2 attach-verified-access-trust-provider \
       --verified-access-instance-id "{{ Verified Instance ID}}" \
       --verified-access-trust-provider-id "{{ Okta Trust Provider ID}}" \
       --region us-west-2
@@ -173,10 +171,10 @@ In this step, you'll be attaching the two Trust Providers you created in the pre
 #### 5.2. Attach your CrowdStrike trust provider
 
 1. Replace the following values in the command below before running:
-   1. `Verified Instance ID` and `CrowdStrike Trust Provider ID`
+   1. `{{ Verified Instance ID }}` and `{{ CrowdStrike Trust Provider ID }}`
 
       ```shell
-      aws ava attach-verified-access-trust-provider \
+      aws ec2 attach-verified-access-trust-provider \
       --verified-access-instance-id "{{ Verified Instance ID}}" \
       --verified-access-trust-provider-id "{{ CrowdStrike Trust Provider ID}}" \
       --region us-west-2
@@ -184,16 +182,16 @@ In this step, you'll be attaching the two Trust Providers you created in the pre
 
 ### 6. Create your AWS Verified Access Group
 
-In this step, you'll create your AWS Verified Access Group. Inside, you'll define a policy that will determine access based on the the IdP, device posture, and other parameters provided by the AWS Verified Access service. For this guide, we'll create a policy document that checks that the client has the CrowdStrike agent installed, belongs to our CID, and has an overall ZTA score higher than 80.
+In this step, you'll create your AWS Verified Access Group. Inside, you'll define a policy that will determine access based on the OIDC IdP, device posture, and other parameters provided by the AWS Verified Access service. For this guide, we'll create a policy document that checks that the client has the CrowdStrike agent installed, belongs to our CID, and has an overall ZTA score higher than 80.
 
 > Clients will need to successfully log into your Identity Provider before the policy document is evaluated. As such, any identity provider conditions you set in your policy document are evaluated on top of the successful login.
 
 1. Replace the following values in the command below before running:
-   1. `Verified Instance ID` and `CrowdStrike CID`
+   1. `{{ Verified Instance ID }}` and `{{ CrowdStrike CID }}`
 
    ```shell
-   aws ava create-verified-access-group \
-   --verified-access-instance-id {{ Verified Access ID }} \
+   aws ec2 create-verified-access-group \
+   --verified-access-instance-id {{ Verified Instance ID }} \
    --policy-document \
    "permit(principal,action,resource) when {\
       context.crowdstrike.cid == \"{{ CrowdStrike CID }}\" && context.crowdstrike.assessment.overall > 80\
@@ -208,23 +206,25 @@ In this step, you'll create your AWS Verified Access Group. Inside, you'll defin
 
 In this step, you'll use AWS Certificate Manager to create a certificate for the domain of your private application.
 
-1. Navigate to the AWS Certificate Manager console page
-1. Click `Request`
+1. Navigate to the [AWS Certificate Manager](https://console.aws.amazon.com/acm) console page
+1. Click `Request a certificate`
 1. Select `Request a public certificate` and press `Next`
 1. Type in the domain name of your application and press `Request`
    1. *This should belong to a domain which you manage, as you'll need to create DNS records in future steps*
 1. Verify the certificate by creating the necessary CNAME records as instructed
-1. Save the ARN of the certificate
+1. Save the `ARN` of the certificate
 
 ### 8. Create your AWS Verified Access Endpoint
 
-In this step, you'll bring everything together and create the AWS Verified Access Endpoint that will act as the reverse proxy for your private application. Please note that it will take 10-30 minutes for the endpoint to provision. If you make any changes to the endpoint, it will typically take 5-15 minutes for it to take into effect.
+In this step, you'll bring everything together and create the AWS Verified Access Endpoint that will act as the reverse proxy for your private application.
+
+> Please note that it takes 10-30 minutes for the endpoint to provision. If you make any changes to the endpoint, it will typically take 5-15 minutes for it to take into effect.
 
 1. Replace the following values in the command below before running:
-   1.`Verified Access Group`, `Certificate ARN`, `Private Application Domain Name`, `ALB ARN`, `Subnet1`, `Subnet2`, `Subnet3`, and `SecurityGroup`
+   1.`{{ Verified Access Group }}`, `{{ Certificate ARN }}`, `{{ Private Application Domain Name }}`, `{{ ALB ARN }}`, `{{ Subnet1 }}`, `{{ Subnet2 }}` and `{{ SecurityGroup }}`
 
    ```shell
-   aws ava create-verified-access-endpoint \
+   aws ec2 create-verified-access-endpoint \
    --verified-access-group-id {{ Verified Access Group }} \
    --endpoint-type load-balancer \
    --attachment-type vpc \
@@ -235,13 +235,28 @@ In this step, you'll bring everything together and create the AWS Verified Acces
    "LoadBalancerArn={{ ALB ARN }}, \
    Port=80, \
    Protocol=http, \
-   SubnetIds={{ Subnet1 }}, {{ Subnet2 }}, {{ Subnet3 }} " \
+   SubnetIds={{ Subnet1 }}, {{ Subnet2 }} " \
    --security-group-ids {{ SecurityGroup }} \
    --region us-west-2 \
    --description "CrowdStrike + AWS Verified Access Demo"
    ```
 
 1. Save the value of `VerifiedAccessEndpointId`, `EndpointDomain`, `ApplicationDomain`, and `DeviceValidationDomain`
+
+1. Before moving on, ensure that the endpoint has been succesfully provisioned
+
+   ```shell
+   aws ec2 describe-verified-access-endpoints --verified-access-endpoint-ids {{ VerifiedAccessEndpointId }} --region us-west-2
+   ```
+   You should see:
+
+   ```json
+      ...
+      "Status": {
+            "Code": "active"
+      },
+      ...
+   ```
 
 ### 9. Update your DNS records
 
@@ -258,7 +273,8 @@ In this step, you'll update your Okta's application settings. Specifically, we'l
 
 1. Navigate to your Okta Administrator page and select the application you created
 1. Press `Edit` under General Settings
-1. Replace the placeholders `ApplicationDomain` and `DeviceValidationDomain` with relevant values and add the following URLs under `Sign-in redirect URIs`:
+1. Add the following URLs under ***Sign-in redirect URIs***:
+   > Replace the placeholders `{{ ApplicationDomain }}` and `{{ DeviceValidationDomain }}` with the relevant values
    1. https://{{ ApplicationDomain }}/oauth2/idpresponse
    1. https://{{ DeviceValidationDomain }}/oauth2/idpresponse
 
