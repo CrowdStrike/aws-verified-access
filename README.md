@@ -24,21 +24,23 @@ AWS Verified Access delivers secure access to private applications without a VPN
   - [4. Install the Native Message Host](#4-install-the-native-message-host)
     - [Windows](#windows)
   - [5. Install the browser extension](#5-install-the-browser-extension)
+  - [6. Test connectivity to your application](#6-test-connectivity-to-your-application)
 - [Reference Guide](#reference-guide)
+  - [Prerequisite](#prerequisite)
   - [1. Deploy the private application](#1-deploy-the-private-application)
-  - [2. Setting up your OIDC-compliant identity provider](#2-setting-up-your-oidc-compliant-identity-provider)
-  - [3. Create your AWS Verified Access instance](#3-create-your-aws-verified-access-instance)
+  - [2. Setup an OIDC-compliant identity provider](#2-setup-an-oidc-compliant-identity-provider)
+  - [3. Create an AWS Verified Access instance](#3-create-an-aws-verified-access-instance)
   - [4. Create AWS Verified Access trust providers](#4-create-aws-verified-access-trust-providers)
-    - [4.1. Create your Okta trust provider](#41-create-your-okta-trust-provider)
+    - [4.1. Create the Okta trust provider](#41-create-the-okta-trust-provider)
     - [4.2. Create the CrowdStrike trust provider](#42-create-the-crowdstrike-trust-provider)
-  - [5. Attach your trust providers](#5-attach-your-trust-providers)
-    - [5.1. Attach your Okta trust provider](#51-attach-your-okta-trust-provider)
-    - [5.2. Attach your CrowdStrike trust provider](#52-attach-your-crowdstrike-trust-provider)
-  - [6. Create your AWS Verified Access Group](#6-create-your-aws-verified-access-group)
+  - [5. Attach the trust providers](#5-attach-the-trust-providers)
+    - [5.1. Attach the Okta trust provider](#51-attach-the-okta-trust-provider)
+    - [5.2. Attach the CrowdStrike trust provider](#52-attach-the-crowdstrike-trust-provider)
+  - [6. Create an AWS Verified Access group](#6-create-an-aws-verified-access-group)
   - [7. Create a certificate](#7-create-a-certificate)
   - [8. Create your AWS Verified Access Endpoint](#8-create-your-aws-verified-access-endpoint)
-  - [9. Update your DNS records](#9-update-your-dns-records)
-  - [10. Update your Identity Provider settings](#10-update-your-identity-provider-settings)
+  - [9. Update the DNS records](#9-update-the-dns-records)
+  - [10. Update the Identity Provider settings](#10-update-the-identity-provider-settings)
   - [11. Install the Native Message Host](#11-install-the-native-message-host)
     - [Windows](#windows-1)
   - [12. Install the browser extension](#12-install-the-browser-extension)
@@ -182,9 +184,16 @@ In this step, you'll install the AWS Verified Access browser extension on your c
 1. Navigate to the [Chrome Extension Store](https://chrome.google.com/webstore/category/extensions)
 1. Search for `AWS Verified Access` and install the extension
 
+### 6. Test connectivity to your application
+Enter your application's domain name into your web browser. The request should be allowed and you should be redirected to the application.
+
 ## Reference Guide
 
 The following guide provides step-by-step instructions that showcase a sample application that's protected by AWS Verified Access, Okta (for OIDC), and CrowdStrike Zero Trust Assessment (for Device Posture). The solution will be deployed in `us-west-2`. If you'd like to deploy this elsewhere, please update the region in all commands referenced below.
+
+### Prerequisite
+- A managed domain name to use for the application, such as `www.myapp.example.com`
+   > This guide uses AWS Route 53 to manage DNS settings
 
 ### 1. Deploy the private application
 
@@ -196,7 +205,7 @@ We'll be deploying an internal Application Load Balancer (ALB) through CloudForm
 
 1. Once deployment is complete, refer to the CloudFormation Stack Output and collect the following information that will be used when creating the AWS Verified Access Endpoint in a later section: `ALBArn`, `SecurityGroup`, `Subnet1`, `Subnet2`.
 
-### 2. Setting up your OIDC-compliant identity provider
+### 2. Setup an OIDC-compliant identity provider
 
 In this guide, we'll be using a free trial version of Okta for our OIDC provider. If you prefer to follow along with another provider, the steps should be nearly identical.
 
@@ -212,9 +221,9 @@ In this guide, we'll be using a free trial version of Okta for our OIDC provider
 1. Save your Okta Tenant URL.
    1. Example: If your Okta Admin URL is <https://trial-11111-admin.okta.com>, then your Okta Tenant URL is <https://trial-11111.okta.com>
 
-### 3. Create your AWS Verified Access instance
+### 3. Create an AWS Verified Access instance
 
-1. Create your AWS Verified Access Instance
+1. Create an AWS Verified Access Instance
 
    ```shell
    aws ec2 create-verified-access-instance \
@@ -226,9 +235,9 @@ In this guide, we'll be using a free trial version of Okta for our OIDC provider
 
 ### 4. Create AWS Verified Access trust providers
 
-In this step you'll create two trust providers, one for your IdP and another for CrowdStrike.
+Create two trust providers, one for your IdP and another for CrowdStrike.
 
-#### 4.1. Create your Okta trust provider
+#### 4.1. Create the Okta trust provider
 
 1. Replace the following values in the command below before running:
 
@@ -275,11 +284,11 @@ In this step you'll create two trust providers, one for your IdP and another for
 
 1. Save the value of `VerifiedAccessTrustProviderId`
 
-### 5. Attach your trust providers
+### 5. Attach the trust providers
 
-In this step, you'll be attaching the two Trust Providers you created in the previous step to the AWS Verified Access Instance created earlier.
+Attach the two Verified Access trust providers created in the previous step to the Verified Access instance created earlier.
 
-#### 5.1. Attach your Okta trust provider
+#### 5.1. Attach the Okta trust provider
 
 1. Replace the following values in the command below before running:
 
@@ -294,7 +303,7 @@ In this step, you'll be attaching the two Trust Providers you created in the pre
    --region us-west-2
    ```
 
-#### 5.2. Attach your CrowdStrike trust provider
+#### 5.2. Attach the CrowdStrike trust provider
 
 1. Replace the following values in the command below before running:
 
@@ -309,9 +318,9 @@ In this step, you'll be attaching the two Trust Providers you created in the pre
    --region us-west-2
    ```
 
-### 6. Create your AWS Verified Access Group
+### 6. Create an AWS Verified Access group
 
-In this step, you'll create your AWS Verified Access Group. Inside, you'll define a policy that will determine access based on the OIDC IdP, device posture, and other parameters provided by the AWS Verified Access service. For this guide, we'll create a policy document that checks that the client has the CrowdStrike agent installed, belongs to our CID, and has an overall ZTA score higher than 80.
+Define a policy that will determine access based on the OIDC IdP, device posture, and other parameters provided by the AWS Verified Access service. For this guide, we'll create a policy document that checks that the client has the CrowdStrike agent installed and has an overall ZTA score higher than 80.
 
 > Clients will need to successfully log into your Identity Provider before the policy document is evaluated. As such, any identity provider conditions you set in your policy document are evaluated on top of the successful login.
 
@@ -319,15 +328,12 @@ In this step, you'll create your AWS Verified Access Group. Inside, you'll defin
 
    `{{ Verified Instance ID }}` with your existing Verified Access instance
 
-   `{{ CrowdStrike Assessment Score }}` with your ZTA score criteria
-   > This is a numerical value from 0-100
-
    ```shell
    aws ec2 create-verified-access-group \
    --verified-access-instance-id {{ Verified Instance ID }} \
    --policy-document \
    "permit(principal,action,resource) when {\
-      context.crowdstrike.assessment.overall > {{ CrowdStrike Assessment Score }}\
+      context.crowdstrike.assessment.overall > 80\
    };" \
    --region us-west-2 \
    --description "CrowdStrike + AWS Verified Access Demo | Threshold Example"
@@ -337,7 +343,7 @@ In this step, you'll create your AWS Verified Access Group. Inside, you'll defin
 
 ### 7. Create a certificate
 
-In this step, you'll use AWS Certificate Manager to create a certificate for the domain of your private application.
+Use AWS Certificate Manager to create a certificate for the domain of your private application.
 
 1. Navigate to the [AWS Certificate Manager](https://console.aws.amazon.com/acm) console page
 1. Click `Request a certificate`
@@ -349,7 +355,7 @@ In this step, you'll use AWS Certificate Manager to create a certificate for the
 
 ### 8. Create your AWS Verified Access Endpoint
 
-In this step, you'll bring everything together and create the AWS Verified Access Endpoint that will act as the reverse proxy for your private application.
+Bring everything together and create the AWS Verified Access Endpoint that will act as the reverse proxy for your private application.
 
 > Please note that it takes 10-30 minutes for the endpoint to provision. If you make any changes to the endpoint, it will typically take 5-15 minutes for it to take into effect.
 
@@ -392,18 +398,18 @@ In this step, you'll bring everything together and create the AWS Verified Acces
       ...
    ```
 
-### 9. Update your DNS records
+### 9. Update the DNS records
 
-In this step, you'll update your DNS records to point your private application's domain name to the endpoint domain created by the AWS Verified Access Endpoint you created in the previous step. For this example, we'll assume that you're using Amazon Route53 to manage your domain's DNS. If you're using another DNS provider, please adjust the steps accordingly.
+Update the DNS records to point your private application's domain name to the endpoint domain created by the AWS Verified Access Endpoint you created in the previous step. For this example, we'll assume that you're using Amazon Route53 to manage your domain's DNS. If you're using another DNS provider, please adjust the steps accordingly.
 
 1. Navigate to Amazon Route53 console page -> Hosted Zones
 1. Select the domain name for your private application
 1. Press `Create record`
-1. Type the subdomain you created earlier and select `CNAME` as the Record type. Set the value of the record to be the value of `EndpointDomain` you saved in the previous step and press `Create records`
+1. Type the domain name you created earlier and select `CNAME` as the Record type. Set the value of the record to be the value of `EndpointDomain` you saved in the previous step and press `Create records`
 
-### 10. Update your Identity Provider settings
+### 10. Update the Identity Provider settings
 
-In this step, you'll update your Okta's application settings. Specifically, we'll be adding the AWS Verified Access URLs to the Sign-in redirect URIs. This will tell Okta to send the authentication response to these URLs.
+Update your Okta's application settings. Specifically, we'll be adding the AWS Verified Access URLs to the Sign-in redirect URIs. This will tell Okta to send the authentication response to these URLs.
 
 1. Navigate to your Okta Administrator page and select the application you created
 1. Press `Edit` under General Settings
@@ -414,9 +420,9 @@ In this step, you'll update your Okta's application settings. Specifically, we'l
 
 ### 11. Install the Native Message Host
 
-In this step, you'll install the Native Message Host on your client endpoint. This will allow the AWS Verified Access browser extension to get the client endpoint's CrowdStrike ZTA score.
+Install the Native Message Host on the client endpoint. This will allow the AWS Verified Access browser extension to get the client endpoint's CrowdStrike ZTA score.
 
-> :warning: **Currently only works on Windows** <br>
+> :warning: **Currently only supported on Windows** <br>
 >
 > AWS Verified Access is currently available for Windows clients while the service is in public preview. Support for macOS will be introduced at service launch.
 
@@ -427,14 +433,14 @@ In this step, you'll install the Native Message Host on your client endpoint. Th
 
 ### 12. Install the browser extension
 
-In this step, you'll install the AWS Verified Access browser extension on your client endpoint. In this example, we'll be using the Chrome browser. However, AWS Verified Access supports Firefox, too and the instructions are nearly identical.
+Install the AWS Verified Access browser extension on your client endpoint. In this example, we'll be using the Chrome browser. However, AWS Verified Access also supports Firefox and the instructions are nearly identical.
 
 1. Navigate to the [Chrome Extension Store](https://chrome.google.com/webstore/category/extensions)
 1. Search for `AWS Verified Access` and install the extension
 
 ### 13. Verification
 
-In this step, you'll verify that your private application is properly protected by AWS Verified Access.
+Verify that your private application is properly protected by AWS Verified Access.
 
 1. Confirm that the AWS Verified Access Endpoint is successfully provisioned by running `aws ec2  describe-verified-access-endpoints --region us-west-2` and confirm that `Status.Code` is equal to `Active`
 1. Navigate to your private application domain, which is the value of `ApplicationDomain`
@@ -444,7 +450,7 @@ In this step, you'll verify that your private application is properly protected 
 
 ## Support
 
-The quick start guide is an open source project and not a CrowdStrike product. As such, it carries no formal support, expressed, or implied. If you encounter any issues while deploying the quick start guide, you can create an issue on our Github repository for bugs, enhancements, or other requests.
+The CrowdStrike AWS Verified Access integration is an open source project and not a CrowdStrike product. As such, it carries no formal support, expressed, or implied. If you encounter any issues while deploying the integration, you can create an issue on our Github repository for bugs, enhancements, or other requests.
 
 AWS Verified Access is an AWS product. As such, any questions or problems you experience with this service should be handled through a support ticket with AWS Support.
 
