@@ -6,7 +6,7 @@
 
 # Securing private applications with CrowdStrike and AWS Verified Access
 
-AWS Verified Access delivers secure access to private applications without a VPN by continuously evaluating each request in real-time based on contextual security signals like identity, device security status and location. The service then grants access based on the configured security policy for each application and connects the users, thereby improving security posture of the organization. CrowdStrike customers leverage Falcon sensor's deep inspection and CrowdStrike Threat Graph® analytics to provide highly accurate security posture scores for the service's access decisions.
+AWS Verified Access delivers secure access to private applications without a VPN by continuously evaluating each request in real time based on contextual security signals like identity, device security status and location. The service then grants access based on the configured security policy for each application and connects the users, thereby improving the security posture of the organization. CrowdStrike customers leverage Falcon sensor's deep inspection and CrowdStrike Threat Graph® analytics to provide highly accurate security posture scores for the service's access decisions.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ AWS Verified Access delivers secure access to private applications without a VPN
   - [2. Attach CrowdStrike trust provider to existing Verified Access Instance](#2-attach-crowdstrike-trust-provider-to-existing-verified-access-instance)
   - [3. Configure group-level access policy](#3-configure-group-level-access-policy)
     - [Modify existing Verified Access group](#modify-existing-verified-access-group)
-    - [Create new Verified Access group](#create-new-verified-access-group)
+    - [Create a new Verified Access group](#create-a-new-verified-access-group)
   - [4. Install the Native Message Host](#4-install-the-native-message-host)
     - [Windows](#windows)
   - [5. Install the browser extension](#5-install-the-browser-extension)
@@ -50,7 +50,7 @@ AWS Verified Access delivers secure access to private applications without a VPN
 
 ## Overview
 
-AWS Verified Access provides secure access to private applications (non-internet routable) hosted in an Amazon Virtual Private Cloud (Amazon VPC) by acting as a reverse proxy. It does this by providing identity and device posture checks before routing the traffic to the application. Using CrowdStrike Zero Trust Assessment (CrowdStrike ZTA), we provide customers the ability to assess their endpoint security posture, allowing AWS Verified Access to provide conditional access to resources that comply to your organization's device posture policies.
+AWS Verified Access provides secure access to private applications (non-internet routable) hosted in an Amazon Virtual Private Cloud (Amazon VPC) by acting as a reverse proxy. It does this by providing identity and device posture checks before routing the traffic to the application. Using CrowdStrike Zero Trust Assessment (CrowdStrike ZTA), we provide customers the ability to assess their endpoint security posture, allowing AWS Verified Access to provide conditional access to resources that comply with your organization's device posture policies.
 
 AWS Verified Access relies on these primary components for it to work properly:
 
@@ -63,6 +63,7 @@ AWS Verified Access relies on these primary components for it to work properly:
 ![AWS CRWD Verified Access Diagram](./assets/CrowdStrike_AWS_Verified_Access_Diagram.png)
 
 ## Getting Started
+
 ### Prerequisites
 
 The following requirements must be met before you will be able to deploy or use this solution:
@@ -77,14 +78,18 @@ The following requirements must be met before you will be able to deploy or use 
    > This endpoint will get the Native Messaging installer and browser extension installed
 
 ### Guides
+
 The CrowdStrike AWS Verified Access integration is broken down into 2 different guides, depending
 on your use cases.
-* [Quick Start Guide](#quick-start-guide) - The necessary components needed to complete the integration. This assumes all other AWS Verified Access components have already been established.
-* [Reference Guide](#reference-guide) - A step by step guide, to include examples for setting up an OIDC provider, an example
+
+- [Quick Start Guide](#quick-start-guide) - The necessary components needed to complete the integration. This assumes all other AWS Verified Access components have already been established.
+- [Reference Guide](#reference-guide) - A step-by-step guide, to include examples for setting up an OIDC provider, an example
 private application, and all the AWS Verified Access components.
 
 ## Quick Start Guide
+
 > :warning: Examples below use us-west-2 as the AWS Region. Please use your Region accordingly.
+
 ### 1. Create the CrowdStrike trust provider
 
 1. Replace the following values in the command below before running:
@@ -123,8 +128,11 @@ private application, and all the AWS Verified Access components.
    ```
 
 ### 3. Configure group-level access policy
+
 Please choose the appropriate steps below based on your current situation:
+
 #### Modify existing Verified Access group
+
 1. Replace the following values in the command below before running:
 
    `{{ Verified Group ID }}` with your existing Verified Access group
@@ -143,7 +151,8 @@ Please choose the appropriate steps below based on your current situation:
    --region us-west-2
    ```
 
-#### Create new Verified Access group
+#### Create a new Verified Access group
+
 1. Replace the following values in the command below before running:
 
    `{{ Verified Instance ID }}` with your existing Verified Access instance
@@ -185,6 +194,7 @@ In this step, you'll install the AWS Verified Access browser extension on your c
 1. Search for `AWS Verified Access` and install the extension
 
 ### 6. Test connectivity to your application
+
 Enter your application's domain name into your web browser. The request should be allowed and you should be redirected to the application.
 
 ## Reference Guide
@@ -192,12 +202,13 @@ Enter your application's domain name into your web browser. The request should b
 The following guide provides step-by-step instructions that showcase a sample application that's protected by AWS Verified Access, Okta (for OIDC), and CrowdStrike Zero Trust Assessment (for Device Posture). The solution will be deployed in `us-west-2`. If you'd like to deploy this elsewhere, please update the region in all commands referenced below.
 
 ### Prerequisite
+
 - A managed domain name to use for the application, such as `www.myapp.example.com`
    > This guide uses AWS Route 53 to manage DNS settings
 
 ### 1. Deploy the private application
 
-We'll be deploying an internal Application Load Balancer (ALB) through CloudFormation. The only functionality of this is ALB is to emulate a private application by mocking a response on a successful hit.
+We'll be deploying an internal Application Load Balancer (ALB) through CloudFormation. The only function of this ALB is to emulate a private application by mocking a response on a successful hit.
 
 1. Deploy the CloudFormation template in your respective AWS Account and Region
    - Right Click [here](https://github.com/CrowdStrike/aws-verified-access/blob/main/infrastructure/cfn-alb.json?raw=1) and *Save Link As..* to download the file
@@ -209,7 +220,7 @@ We'll be deploying an internal Application Load Balancer (ALB) through CloudForm
 
 In this guide, we'll be using a free trial version of Okta for our OIDC provider. If you prefer to follow along with another provider, the steps should be nearly identical.
 
-1. Sign up for a [free trial](https://www.okta.com/free-trial/) to Okta's Workforce Identity Cloud
+1. Sign up for a [free trial](https://www.okta.com/free-trial/) of Okta's Workforce Identity Cloud
 1. After logging in, navigate to your Okta Administrator page and select the ***Application*** option on the sidebar nav
 1. Create a new application with an OIDC as the sign-in method
    <img src="assets/idp-setup-1.png" alt="Create a new application with an OIDC as the sign-in method" width="550" height="500">
@@ -349,7 +360,7 @@ Use AWS Certificate Manager to create a certificate for the domain of your priva
 1. Click `Request a certificate`
 1. Select `Request a public certificate` and press `Next`
 1. Type in the domain name of your application and press `Request`
-   1. *This should belong to a domain which you manage, as you'll need to create DNS records in future steps*
+   1. *This should belong to a domain that you manage, as you'll need to create DNS records in future steps*
 1. Verify the certificate by creating the necessary CNAME records as instructed
 1. Save the `ARN` of the certificate
 
@@ -383,11 +394,12 @@ Bring everything together and create the AWS Verified Access Endpoint that will 
 
 1. Save the value of `VerifiedAccessEndpointId`, `EndpointDomain`, `ApplicationDomain`, and `DeviceValidationDomain`
 
-1. Before moving on, ensure that the endpoint has been succesfully provisioned
+1. Before moving on, ensure that the endpoint has been successfully provisioned
 
    ```shell
    aws ec2 describe-verified-access-endpoints --verified-access-endpoint-ids {{ VerifiedAccessEndpointId }} --region us-west-2
    ```
+
    You should see:
 
    ```json
@@ -450,9 +462,10 @@ Verify that your private application is properly protected by AWS Verified Acces
 
 ## Support
 
-The CrowdStrike AWS Verified Access integration is an open source project and not a CrowdStrike product. As such, it carries no formal support, expressed, or implied. If you encounter any issues while deploying the integration, you can create an issue on our Github repository for bugs, enhancements, or other requests.
+The CrowdStrike AWS Verified Access integration is an open-source project and not a CrowdStrike product. As such, it carries no formal support, expressed, or implied. If you encounter any issues while deploying the integration, you can create an issue on our GitHub repository for bugs, enhancements, or other requests.
 
 AWS Verified Access is an AWS product. As such, any questions or problems you experience with this service should be handled through a support ticket with AWS Support.
 
 ## Resources
+
 [AWS Verified Access](https://docs.aws.amazon.com/verified-access/latest/ug/what-is-verified-access.html)
