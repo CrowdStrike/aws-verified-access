@@ -63,6 +63,7 @@ AWS Verified Access relies on these primary components for it to work properly:
 ![AWS CRWD Verified Access Diagram](./assets/CrowdStrike_AWS_Verified_Access_Diagram.png)
 
 ## Getting Started
+
 ### Prerequisites
 
 The following requirements must be met before you will be able to deploy or use this solution:
@@ -77,14 +78,18 @@ The following requirements must be met before you will be able to deploy or use 
    > This endpoint will get the Native Messaging installer and browser extension installed
 
 ### Guides
+
 The CrowdStrike AWS Verified Access integration is broken down into 2 different guides, depending
 on your use cases.
-* [Quick Start Guide](#quick-start-guide) - The necessary components needed to complete the integration. This assumes all other AWS Verified Access components have already been established.
-* [Reference Guide](#reference-guide) - A step by step guide, to include examples for setting up an OIDC provider, an example
+
+- [Quick Start Guide](#quick-start-guide) - The necessary components needed to complete the integration. This assumes all other AWS Verified Access components have already been established.
+- [Reference Guide](#reference-guide) - A step by step guide, to include examples for setting up an OIDC provider, an example
 private application, and all the AWS Verified Access components.
 
 ## Quick Start Guide
+
 > :warning: Examples below use us-west-2 as the AWS Region. Please use your Region accordingly.
+
 ### 1. Create the CrowdStrike trust provider
 
 1. Replace the following values in the command below before running:
@@ -123,8 +128,11 @@ private application, and all the AWS Verified Access components.
    ```
 
 ### 3. Configure group-level access policy
+
 Please choose the appropriate steps below based on your current situation:
+
 #### Modify existing Verified Access group
+
 1. Replace the following values in the command below before running:
 
    `{{ Verified Group ID }}` with your existing Verified Access group
@@ -144,6 +152,7 @@ Please choose the appropriate steps below based on your current situation:
    ```
 
 #### Create new Verified Access group
+
 1. Replace the following values in the command below before running:
 
    `{{ Verified Instance ID }}` with your existing Verified Access instance
@@ -185,6 +194,7 @@ In this step, you'll install the AWS Verified Access browser extension on your c
 1. Search for `AWS Verified Access` and install the extension
 
 ### 6. Test connectivity to your application
+
 Enter your application's domain name into your web browser. The request should be allowed and you should be redirected to the application.
 
 ## Reference Guide
@@ -192,6 +202,7 @@ Enter your application's domain name into your web browser. The request should b
 The following guide provides step-by-step instructions that showcase a sample application that's protected by AWS Verified Access, Okta (for OIDC), and CrowdStrike Zero Trust Assessment (for Device Posture). The solution will be deployed in `us-west-2`. If you'd like to deploy this elsewhere, please update the region in all commands referenced below.
 
 ### Prerequisite
+
 - A managed domain name to use for the application, such as `www.myapp.example.com`
    > This guide uses AWS Route 53 to manage DNS settings
 
@@ -388,6 +399,7 @@ Bring everything together and create the AWS Verified Access Endpoint that will 
    ```shell
    aws ec2 describe-verified-access-endpoints --verified-access-endpoint-ids {{ VerifiedAccessEndpointId }} --region us-west-2
    ```
+
    You should see:
 
    ```json
@@ -455,4 +467,5 @@ The CrowdStrike AWS Verified Access integration is an open source project and no
 AWS Verified Access is an AWS product. As such, any questions or problems you experience with this service should be handled through a support ticket with AWS Support.
 
 ## Resources
+
 [AWS Verified Access](https://docs.aws.amazon.com/verified-access/latest/ug/what-is-verified-access.html)
