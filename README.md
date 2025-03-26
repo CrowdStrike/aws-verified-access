@@ -1,8 +1,5 @@
-![CrowdStrike Falcon](https://raw.githubusercontent.com/CrowdStrike/falconpy/main/docs/asset/cs-logo.png)
-
-<br>
-
-![Twitter URL](https://img.shields.io/twitter/url?label=Follow%20%40CrowdStrike&style=social&url=https%3A%2F%2Ftwitter.com%2FCrowdStrike)
+> [!CAUTION]
+> This repository is deprecated. Please go to [https://github.com/CrowdStrike/Cloud-AWS/tree/main/verified-access](https://github.com/CrowdStrike/Cloud-AWS/tree/main/verified-access) to see the latest supported version.
 
 # Securing private applications with CrowdStrike and AWS Verified Access
 
